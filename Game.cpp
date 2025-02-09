@@ -152,6 +152,9 @@ public:
         id = nextId();
         return point();
     }
+    operator Point() {
+        return point();
+    }
 private:
     Game &context;
     int id;
@@ -163,15 +166,10 @@ private:
 // Game move consisting of target coördinates and speed
 class Move {
 public:
-    Move(Point target)
-    : target(target) {
-    }
-    Move()
-    : Move(Point()) {}
-    Move(Checkpoint cp)
-    : Move(cp.point()) {}
+    Move(Point target = Point(), int speed = 100) :
+        target(target),
+        speed(speed) {}
     Point target;
-    int speed = 100;
     bool boost = false;
     int setSpeed(int desiredSpeed) {
         speed = min(100,max(0,desiredSpeed));
@@ -180,6 +178,8 @@ public:
     string to_string() {
         return target.to_string() + " "s + (boost ? "BOOST" : std::to_string(speed));
     }
+private:
+    int speed;
 };
 
 /*
