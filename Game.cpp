@@ -126,11 +126,10 @@ public:
 
 class Checkpoint {
 public:
-    Checkpoint(const Game &context, int id)
-    : context(context) {
-        setId(id % context.checkpoint_count);
-    }
-    Checkpoint(const Game &context)
+    Checkpoint(Game &context, int id) :
+        context(context),
+        id(wrap(id)) {}
+    Checkpoint(Game &context)
     : Checkpoint(context, 0) {}
     static const int RADIUS = 600;
     int getId() {
@@ -144,17 +143,17 @@ public:
         return wrap(id+1);
     }
     Point point() {
-        return context.checkpoints[id];
+        return context.getCp(id);
     }
     Point next() {
-        return context.checkpoints[nextId()];
+        return context.getCp(nextId());
     }
     Point advance() {
         id = nextId();
         return point();
     }
 private:
-    const Game &context;
+    Game &context;
     int id;
     int wrap(int id) {
         return id % context.checkpoint_count;
@@ -243,10 +242,6 @@ int angleDiff(int a1, int a2) {
         assert(ret <= 180);
         return ret;
     }
-}
-
-Point nextCP(Game game, Pod pod) {
-    return game.checkpoints[pod.nextCpId];
 }
 
 int distToCp(Game game, Pod pod) {
