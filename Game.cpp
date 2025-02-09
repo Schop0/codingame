@@ -271,33 +271,31 @@ bool expectToHitCp(Game game, Pod pod) {
 }
 
 // Slowdown factor when not facing the target
-int speedLimitAngle(Pod pod, Point target) {
-    static const int ROTATION_SLOWDOWN_FACTOR = 2;
+float speedFactorAngle(Pod pod, Point target) {
+    static const float ROTATION_SLOWDOWN_FACTOR = 0.02f;
     Point relativeTarget = (target - pod.position);
     int rotationalError = angleDiff(pod.angle, relativeTarget.angle());
-    return max(0,min(100,100-(rotationalError*ROTATION_SLOWDOWN_FACTOR)));
+    return max(0.0f, min(1.0f, 1.0f - (rotationalError * ROTATION_SLOWDOWN_FACTOR)));
 }
 
 // Slowdown factor when close to the target
-int speedLimitDistance(Pod pod, Point target) {
-    static const int PROXIMITY_SLOWDOWN_FACTOR = 5;
+float speedFactorDistance(Pod pod, Point target) {
+    static const float PROXIMITY_SLOWDOWN_FACTOR = 0.002f;
     int targetDistance = pod.distance(target);
-    return max(0,min(100,targetDistance/PROXIMITY_SLOWDOWN_FACTOR));
+    return max(0.0f, min(1.0f, targetDistance * PROXIMITY_SLOWDOWN_FACTOR));
 }
 
 string play(Pod &pod, Game &game) {
     Checkpoint targetCp(game, pod.nextCpId);
-    
+    float desiredSpeed = 100;
+
     if (expectToHitCp(game, pod)) {
         targetCp.advance();
     }
+    desiredSpeed *= speedFactorAngle   (pod, targetCp);
+    desiredSpeed *= speedFactorDistance(pod, targetCp);
 
-    Move move(targetCp);
-
-    move.setSpeed(min(
-        speedLimitAngle   (pod, move.target),
-        speedLimitDistance(pod, move.target)
-        ));
+    Move move(targetCp, desiredSpeed);
 
     // Start game with a boost
     if (pod.angle == -1) move.boost = true;
