@@ -291,6 +291,7 @@ string play(Pod &pod, Game &game) {
 
     if (expectToHitCp(game, pod)) {
         targetCp.advance();
+        desiredSpeed = 0;  // Prevent acceleration until current checkpoint is reached
     }
     desiredSpeed *= speedFactorAngle   (pod, targetCp);
     desiredSpeed *= speedFactorDistance(pod, targetCp);
