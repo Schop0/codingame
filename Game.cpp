@@ -254,9 +254,20 @@ int distToCp(Game game, Pod pod) {
 
 // Guess if pod is likely to hit it's CP without accelerating
 bool expectToHitCp(Game game, Pod pod) {
-    static const int SAFETY_MARGIN = Checkpoint::RADIUS;
-    // Ignore direction for simplicity: this may be wrong
-    return pod.coastDist() > (distToCp(game, pod) + SAFETY_MARGIN);
+    Point cp = game.getCp(pod);
+
+    static const int SAFETY_MARGIN_SPEED = Checkpoint::RADIUS * 0;
+    // Does our speed allow us to coast to the checkpoint with margin to spare?
+    bool enoughSpeed = pod.coastDist() >= (pod.distance(cp) + SAFETY_MARGIN_SPEED);
+
+    static const int SAFETY_MARGIN_ANGLE = Checkpoint::RADIUS * 0;
+    Vector velocityNormalisedToCpDistance(pod.distance(cp), pod.velocity.angle());
+    Point pointClosestToCp = pod.position + Point(velocityNormalisedToCpDistance);
+    int distanceClosestToCp = cp.distance(pointClosestToCp);
+    // Does our direction project through the radius of the checkpoint with margin to spare?
+    bool enoughAccuracy = distanceClosestToCp <= (Checkpoint::RADIUS - SAFETY_MARGIN_ANGLE);
+
+    return enoughSpeed && enoughAccuracy;
 }
 
 // Slowdown factor when not facing the target
