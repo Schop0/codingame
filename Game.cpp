@@ -9,10 +9,38 @@
 
 using namespace std;
 
+class Vector {
+public:
+    Vector(int magnitude = 1, int direction = 0) :
+        magnitude(magnitude),
+        direction(normalise(direction)) {
+    }
+    int getDirection() {
+        return direction;
+    }
+    int setDirection(int newDirection) {
+        direction = normalise(newDirection);
+        return direction;
+    }
+    int x() {
+        return round(cos(direction) * magnitude);
+    }
+    int y() {
+        return round(sin(direction) * magnitude);
+    }
+    int magnitude;
+private:
+    int direction;
+    static int normalise(int direction) {
+        return direction % 360;
+    }
+};
+
 class Point {
 public:
     Point(int x, int y) : x(x)  , y(y)   {}
     Point()             : x(0)  , y(0)   {}
+    Point(Vector v) : x(v.x()), y(v.y()) {}
     int x;
     int y;
     int angle() {
@@ -26,6 +54,9 @@ public:
     }
     int magnitude() {
         return distance(Point(0,0));
+    }
+    Vector toVector() {
+        return Vector(magnitude(), angle());
     }
     string to_string() {
         return std::to_string(x) + " "s + std::to_string(y);
@@ -63,11 +94,17 @@ public:
         return velocity.angle();
     }
     // Final resting point if not accelerating
+    Point coastOffset() {
+        return velocity * (20.0f/3.0f);
+    }
     Point coastDest() {
-        return position + (velocity * (20.0f/3.0f));
+        return position + coastOffset();
+    }
+    Vector coastVect() {
+        return Vector(coastOffset().toVector());
     }
     int coastDist() {
-        return distance(coastDest());
+        return coastVect().magnitude;
     }
 };
 
