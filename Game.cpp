@@ -82,6 +82,7 @@ class Pod {
 public:
     Point position;
     Point velocity;
+    static const int maxSpeed = 100;
     int angle;
     int nextCpId;
     int distance(Point p) const {
@@ -95,7 +96,8 @@ public:
     }
     // Final resting point if not accelerating
     Point coastOffset() const {
-        return velocity * (20.0f/3.0f);
+        static const float coastFactor = 20.0f/3.0f; // sum of 0.85^n from 0 to infinity
+        return velocity * coastFactor;
     }
     Point coastDest() const {
         return position + coastOffset();
@@ -287,7 +289,7 @@ float speedFactorDistance(Pod pod, Point target) {
 
 string play(Pod &pod, Game &game) {
     Checkpoint targetCp(game, pod.nextCpId);
-    float desiredSpeed = 100;
+    float desiredSpeed = Pod::maxSpeed;
 
     if (expectToHitCp(game, pod)) {
         targetCp.advance();
