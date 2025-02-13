@@ -112,12 +112,12 @@ public:
 class Game {
 public:
     unsigned int laps;
-    unsigned int checkpoint_count;
+    unsigned int checkpointCount;
     vector<Point> checkpoints;
     // getCP allows wraparound so the following is safe:
     // getCP(pod.nextCpId + 1)
     Point getCp(unsigned int index) const {
-        return checkpoints[index % checkpoint_count];
+        return checkpoints[index % checkpointCount];
     }
     Point getCp(Pod pod) const {
         return getCp(pod.nextCpId);
@@ -131,7 +131,7 @@ public:
         id(wrap(id)) {}
     Checkpoint(Game &context)
     : Checkpoint(context, 0) {}
-    static const int RADIUS = 600;
+    static const int radius = 600;
     int getId() const {
         return id;
     }
@@ -159,7 +159,7 @@ private:
     Game &context;
     int id;
     int wrap(int id) const {
-        return id % context.checkpoint_count;
+        return id % context.checkpointCount;
     }
 };
 
@@ -186,17 +186,17 @@ private:
  *  Context parsing functions 
  */
 
-void read_game(Game &game) {
+void readGame(Game &game) {
     cin >> game.laps; cin.ignore();
-    cin >> game.checkpoint_count; cin.ignore();
-    for (int i = 0; i < game.checkpoint_count; i++) {
+    cin >> game.checkpointCount; cin.ignore();
+    for (int i = 0; i < game.checkpointCount; i++) {
         Point checkpoint;
         cin >> checkpoint.x >> checkpoint.y; cin.ignore();
         game.checkpoints.push_back(checkpoint);
     }
 }
 
-void read_context(Pod pod[2]) {
+void readContext(Pod pod[2]) {
     for (int i = 0; i < 2; i++) {
         cin >> pod[i].position.x >> pod[i].position.y >> pod[i].velocity.x >> pod[i].velocity.y >> pod[i].angle >> pod[i].nextCpId; cin.ignore();
     }
@@ -210,13 +210,13 @@ string play(Pod &pod, Game &game);
 
 int main() {
     Game game;
-    read_game(game);
+    readGame(game);
 
     while (1) {
         Pod player[2];
-        read_context(player);
+        readContext(player);
         Pod enemy[2];
-        read_context(enemy);
+        readContext(enemy);
 
         cout << play(player[0], game) << endl;
         cout << play(player[1], game) << endl;
@@ -256,33 +256,33 @@ int distToCp(Game game, Pod pod) {
 bool expectToHitCp(Game game, Pod pod) {
     Point cp = game.getCp(pod);
 
-    static const int SAFETY_MARGIN_SPEED = Checkpoint::RADIUS * 0;
+    static const int safetyMarginSpeed = Checkpoint::radius * 0;
     // Does our speed allow us to coast to the checkpoint with margin to spare?
-    bool enoughSpeed = pod.coastDist() >= (pod.distance(cp) + SAFETY_MARGIN_SPEED);
+    bool enoughSpeed = pod.coastDist() >= (pod.distance(cp) + safetyMarginSpeed);
 
-    static const int SAFETY_MARGIN_ANGLE = Checkpoint::RADIUS * 0;
+    static const int safetyMarginAngle = Checkpoint::radius * 0;
     Vector velocityNormalisedToCpDistance(pod.distance(cp), pod.velocity.angle());
     Point pointClosestToCp = pod.position + Point(velocityNormalisedToCpDistance);
     int distanceClosestToCp = cp.distance(pointClosestToCp);
     // Does our direction project through the radius of the checkpoint with margin to spare?
-    bool enoughAccuracy = distanceClosestToCp <= (Checkpoint::RADIUS - SAFETY_MARGIN_ANGLE);
+    bool enoughAccuracy = distanceClosestToCp <= (Checkpoint::radius - safetyMarginAngle);
 
     return enoughSpeed && enoughAccuracy;
 }
 
 // Slowdown factor when not facing the target
 float speedFactorAngle(Pod pod, Point target) {
-    static const float ROTATION_SLOWDOWN_FACTOR = 0.02f;
+    static const float rotationSlowdownFactor = 0.02f;
     Point relativeTarget = (target - pod.position);
     int rotationalError = angleDiff(pod.angle, relativeTarget.angle());
-    return max(0.0f, min(1.0f, 1.0f - (rotationalError * ROTATION_SLOWDOWN_FACTOR)));
+    return max(0.0f, min(1.0f, 1.0f - (rotationalError * rotationSlowdownFactor)));
 }
 
 // Slowdown factor when close to the target
 float speedFactorDistance(Pod pod, Point target) {
-    static const float PROXIMITY_SLOWDOWN_FACTOR = 0.002f;
+    static const float proximitySlowdownFactor = 0.002f;
     int targetDistance = pod.distance(target);
-    return max(0.0f, min(1.0f, targetDistance * PROXIMITY_SLOWDOWN_FACTOR));
+    return max(0.0f, min(1.0f, targetDistance * proximitySlowdownFactor));
 }
 
 string play(Pod &pod, Game &game) {
