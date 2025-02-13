@@ -15,17 +15,17 @@ public:
         magnitude(magnitude),
         direction(normalise(direction)) {
     }
-    int getDirection() {
+    int getDirection() const {
         return direction;
     }
     int setDirection(int newDirection) {
         direction = normalise(newDirection);
         return direction;
     }
-    int x() {
+    int x() const {
         return round(cos(direction) * magnitude);
     }
-    int y() {
+    int y() const {
         return round(sin(direction) * magnitude);
     }
     int magnitude;
@@ -43,22 +43,22 @@ public:
     Point(Vector v) : x(v.x()), y(v.y()) {}
     int x;
     int y;
-    int angle() {
+    int angle() const {
         int angle = atan2 (y,x) * 180 / numbers::pi;
         if (angle < 0) angle += 360; // Positive angles
         return angle;
     }
-    int distance(Point p) {
+    int distance(Point p) const {
         p = p - *this;
         return sqrt(p.x*p.x + p.y*p.y);
     }
-    int magnitude() {
+    int magnitude() const {
         return distance(Point(0,0));
     }
-    Vector toVector() {
+    Vector toVector() const {
         return Vector(magnitude(), angle());
     }
-    string to_string() {
+    string to_string() const {
         return std::to_string(x) + " "s + std::to_string(y);
     }
     friend Point operator+(Point lhs, const Point &rhs) {
@@ -84,26 +84,26 @@ public:
     Point velocity;
     int angle;
     int nextCpId;
-    int distance(Point p) {
+    int distance(Point p) const {
         return position.distance(p);
     }
-    int speed() {
+    int speed() const {
         return velocity.magnitude();
     }
-    int heading() {
+    int heading() const {
         return velocity.angle();
     }
     // Final resting point if not accelerating
-    Point coastOffset() {
+    Point coastOffset() const {
         return velocity * (20.0f/3.0f);
     }
-    Point coastDest() {
+    Point coastDest() const {
         return position + coastOffset();
     }
-    Vector coastVect() {
+    Vector coastVect() const {
         return Vector(coastOffset().toVector());
     }
-    int coastDist() {
+    int coastDist() const {
         return coastVect().magnitude;
     }
 };
@@ -116,10 +116,10 @@ public:
     vector<Point> checkpoints;
     // getCP allows wraparound so the following is safe:
     // getCP(pod.nextCpId + 1)
-    Point getCp(unsigned int index) {
+    Point getCp(unsigned int index) const {
         return checkpoints[index % checkpoint_count];
     }
-    Point getCp(Pod pod) {
+    Point getCp(Pod pod) const {
         return getCp(pod.nextCpId);
     }
 };
@@ -132,33 +132,33 @@ public:
     Checkpoint(Game &context)
     : Checkpoint(context, 0) {}
     static const int RADIUS = 600;
-    int getId() {
+    int getId() const {
         return id;
     }
     int setId(int newId) {
         id = wrap(newId);
         return id;
     }
-    int nextId() {
+    int nextId() const {
         return wrap(id+1);
     }
-    Point point() {
+    Point point() const {
         return context.getCp(id);
     }
-    Point next() {
+    Point next() const {
         return context.getCp(nextId());
     }
     Point advance() {
         id = nextId();
         return point();
     }
-    operator Point() {
+    operator Point() const {
         return point();
     }
 private:
     Game &context;
     int id;
-    int wrap(int id) {
+    int wrap(int id) const {
         return id % context.checkpoint_count;
     }
 };
@@ -175,7 +175,7 @@ public:
         speed = min(100,max(0,desiredSpeed));
         return speed;
     }
-    string to_string() {
+    string to_string() const {
         return target.to_string() + " "s + (boost ? "BOOST" : std::to_string(speed));
     }
 private:
