@@ -15,6 +15,9 @@ public:
         magnitude(magnitude),
         direction(normalise(direction)) {
     }
+    int getMagnitude() const {
+        return magnitude;
+    }
     int getDirection() const {
         return direction;
     }
@@ -22,17 +25,24 @@ public:
         direction = normalise(newDirection);
         return direction;
     }
+    float getRadians() const {
+        return direction * numbers::pi / 180.0f;
+    }
     int x() const {
-        return round(cos(direction) * magnitude);
+        return round(magnitude * cos(getRadians()));
     }
     int y() const {
-        return round(sin(direction) * magnitude);
+        return round(magnitude * sin(getRadians()));
     }
-    int magnitude;
 private:
+    int magnitude;
     int direction;
     static int normalise(int direction) {
-        return direction % 360;
+        int normalised = direction % 360;
+        if (normalised < 0) normalised += 360;
+        assert(normalised >=   0);
+        assert(normalised <  360);
+        return normalised;
     }
 };
 
@@ -106,7 +116,7 @@ public:
         return Vector(coastOffset().toVector());
     }
     int coastDist() const {
-        return coastVect().magnitude;
+        return coastVect().getMagnitude();
     }
 };
 
