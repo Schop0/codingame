@@ -60,7 +60,7 @@ public:
     }
     int distance(Point p) const {
         p = p - *this;
-        return sqrt(p.x*p.x + p.y*p.y);
+        return round(sqrt(p.x*p.x + p.y*p.y));
     }
     int magnitude() const {
         return distance(Point(0,0));
@@ -81,9 +81,14 @@ public:
         lhs.y -= rhs.y;
         return lhs;
     }
+    friend Point operator*(Point lhs, int rhs) {
+        lhs.x *= rhs;
+        lhs.y *= rhs;
+        return lhs;
+    }
     friend Point operator*(Point lhs, float rhs) {
-        lhs.x = (int)(0.5f + lhs.x * rhs);
-        lhs.y = (int)(0.5f + lhs.y * rhs);
+        lhs.x = round(lhs.x * rhs);
+        lhs.y = round(lhs.y * rhs);
         return lhs;
     }
 };
