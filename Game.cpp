@@ -175,11 +175,9 @@ struct Game {
 
 class Checkpoint {
 public:
-    Checkpoint(Game context, int id) :
-        context(context),
+    Checkpoint(const Game &context, int id=0) :
+        context(&context),
         id(wrap(id)) {}
-    Checkpoint(Game context)
-    : Checkpoint(context, 0) {}
     static const int radius = 600;
     int getId() const {
         return id;
@@ -188,19 +186,19 @@ public:
         return wrap(id+1);
     }
     Point point() const {
-        return context.getCp(id);
+        return context->getCp(id);
     }
     Checkpoint next() {
-        return Checkpoint(context, nextId());
+        return Checkpoint(*context, nextId());
     }
     operator Point() const {
         return point();
     }
 private:
-    Game context;
+    const Game *context;
     int id;
     int wrap(int id) const {
-        return id % context.checkpointCount;
+        return id % context->checkpointCount;
     }
 };
 
@@ -227,7 +225,7 @@ private:
  *  Game loop
  */
 
-string play(Pod &pod, Game &game);
+string play(const Pod &pod, const Game &game);
 
 int main() {
     Game game;
@@ -263,7 +261,7 @@ int angleDiff(int a1, int a2) {
     }
 }
 
-int distToCp(Game game, Pod pod) {
+int distToCp(const Game &game, const Pod &pod) {
     return pod.distance(game.getCp(pod));
 }
 
@@ -272,7 +270,7 @@ int distToCp(Game game, Pod pod) {
  */
 
 // Guess if pod is likely to hit it's CP without accelerating
-bool expectToHitCp(Game game, Pod pod) {
+bool expectToHitCp(const Game &game, const Pod &pod) {
     Point cp = game.getCp(pod);
 
     static const int safetyMarginSpeed = Checkpoint::radius * 0;
@@ -290,7 +288,7 @@ bool expectToHitCp(Game game, Pod pod) {
 }
 
 // Slowdown factor when not facing the target
-float speedFactorAngle(Pod pod, Point target) {
+float speedFactorAngle(const Pod &pod, Point target) {
     static const float rotationSlowdownFactor = 0.02f;
     Point relativeTarget = (target - pod.position);
     int rotationalError = angleDiff(pod.angle, relativeTarget.angle());
@@ -298,13 +296,13 @@ float speedFactorAngle(Pod pod, Point target) {
 }
 
 // Slowdown factor when close to the target
-float speedFactorDistance(Pod pod, Point target) {
+float speedFactorDistance(const Pod &pod, Point target) {
     static const float proximitySlowdownFactor = 0.002f;
     int targetDistance = pod.distance(target);
     return max(0.0f, min(1.0f, targetDistance * proximitySlowdownFactor));
 }
 
-string play(Pod &pod, Game &game) {
+string play(const Pod &pod, const Game &game) {
     Checkpoint targetCp(game, pod.nextCpId);
     float desiredSpeed = Pod::maxSpeed;
 
