@@ -92,6 +92,9 @@ struct Point {
 };
 
 struct Pod {
+    Pod(int x=0, int y=0, int vx=0, int vy=0, int a=0, int id=0) :
+        position(x, y), velocity(vx, vy), angle(a), nextCpId(id) {
+    }
     Point position;
     Point velocity;
     static const int maxSpeed = 100;
