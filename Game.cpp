@@ -212,10 +212,14 @@ void readGame(Game &game) {
     }
 }
 
-void readContext(Pod pod[2]) {
-    for (int i = 0; i < 2; i++) {
-        cin >> pod[i].position.x >> pod[i].position.y >> pod[i].velocity.x >> pod[i].velocity.y >> pod[i].angle >> pod[i].nextCpId; cin.ignore();
+vector<Pod> readContext(int count) {
+    vector<Pod> context;
+    for (int i = 0; i < count; i++) {
+        int x, y, vx, vy, angle, nextCpId;
+        cin >> x >> y >> x >> y >> angle >> nextCpId; cin.ignore();
+        context.push_back( Pod(x, y, vx, vy, angle, nextCpId) );
     }
+    return context;
 }
 
 /*
@@ -229,13 +233,12 @@ int main() {
     readGame(game);
 
     while (1) {
-        Pod player[2];
-        readContext(player);
-        Pod enemy[2];
-        readContext(enemy);
+        vector<Pod> player = readContext(2);
+        vector<Pod> enemy = readContext(2);
 
-        cout << play(player[0], game) << endl;
-        cout << play(player[1], game) << endl;
+        for (Pod pod : player) {
+            cout << play(pod, game) << endl;
+        }
     }
 }
 
