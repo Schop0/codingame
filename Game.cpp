@@ -46,8 +46,7 @@ private:
     }
 };
 
-class Point {
-public:
+struct Point {
     Point(int x, int y) : x(x)  , y(y)   {}
     Point()             : x(0)  , y(0)   {}
     Point(Vector v) : x(v.x()), y(v.y()) {}
@@ -93,8 +92,7 @@ public:
     }
 };
 
-class Pod {
-public:
+struct Pod {
     Point position;
     Point velocity;
     static const int maxSpeed = 100;
@@ -126,8 +124,7 @@ public:
 };
 
 // Game context as initially provided
-class Game {
-public:
+struct Game {
     unsigned int laps;
     unsigned int checkpointCount;
     vector<Point> checkpoints;
