@@ -129,6 +129,7 @@ struct Pod {
 struct Game {
     static const unsigned int playerCount = 2;
     static const unsigned int enemyCount = 2;
+    unsigned int turn = 1;
     unsigned int laps;
     unsigned int checkpointCount;
     vector<Point> checkpoints;
@@ -139,6 +140,9 @@ struct Game {
     }
     Point getCp(Pod pod) const {
         return getCp(pod.nextCpId);
+    }
+    bool isFirstTurn() const {
+        return 1 == turn;
     }
 };
 
@@ -233,6 +237,7 @@ int main() {
         for (Pod pod : player) {
             cout << play(pod, game) << endl;
         }
+        game.turn++;
     }
 }
 
@@ -312,7 +317,7 @@ string play(Pod &pod, Game &game) {
     Move move(targetCp, desiredSpeed);
 
     // Start game with a boost
-    if (pod.angle == -1) move.boost = true;
+    if (game.isFirstTurn()) move.boost = true;
 
     // Debug
     cerr
