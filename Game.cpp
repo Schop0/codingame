@@ -123,10 +123,13 @@ struct Pod {
     int coastDist() const {
         return coastVect().getMagnitude();
     }
+
 };
 
 // Game context as initially provided
 struct Game {
+    static const unsigned int playerCount = 2;
+    static const unsigned int enemyCount = 2;
     unsigned int laps;
     unsigned int checkpointCount;
     vector<Point> checkpoints;
@@ -233,8 +236,8 @@ int main() {
     readGame(game);
 
     while (1) {
-        vector<Pod> player = readContext(2);
-        vector<Pod> enemy = readContext(2);
+        vector<Pod> player = readContext(Game::playerCount);
+        vector<Pod> enemy = readContext(Game::enemyCount);
 
         for (Pod pod : player) {
             cout << play(pod, game) << endl;
