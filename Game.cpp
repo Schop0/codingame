@@ -127,12 +127,39 @@ struct Pod {
 
 // Game context as initially provided
 struct Game {
-    static const unsigned int playerCount = 2;
-    static const unsigned int enemyCount = 2;
-    unsigned int turn = 1;
+    static const unsigned int podCount = 2;
+    unsigned int turn = 0;
     unsigned int laps;
     unsigned int checkpointCount;
     vector<Point> checkpoints;
+    vector<Pod> player;
+    vector<Pod> enemy;
+    void init(istream &in) {
+        in >> laps; in.ignore();
+        in >> checkpointCount; in.ignore();
+        for (int i = 0; i < checkpointCount; i++) {
+            Point cp;
+            in >> cp.x >> cp.y; in.ignore();
+            checkpoints.push_back(cp);
+        }
+    }
+    static Pod readPod(istream &in) {
+        int x, y, vx, vy, angle, nextCpId;
+        in >> x >> y >> vx >> vy >> angle >> nextCpId; in.ignore();
+        return Pod(x, y, vx, vy, angle, nextCpId);
+    }
+    static vector<Pod> readPlayer(istream &in) {
+        vector<Pod> pods;
+        for (int i = 0; i < podCount; i++) {
+            pods.push_back(readPod(in));
+        }
+        return pods;
+    }
+    void prepareNextTurn(istream &in) {
+        player = readPlayer(in);
+        enemy = readPlayer(in);
+        turn++;
+    }
     // getCP allows wraparound so the following is safe:
     // getCP(pod.nextCpId + 1)
     Point getCp(unsigned int index) const {
@@ -197,30 +224,6 @@ private:
 };
 
 /*
- *  Context parsing functions 
- */
-
-void readGame(Game &game) {
-    cin >> game.laps; cin.ignore();
-    cin >> game.checkpointCount; cin.ignore();
-    for (int i = 0; i < game.checkpointCount; i++) {
-        Point checkpoint;
-        cin >> checkpoint.x >> checkpoint.y; cin.ignore();
-        game.checkpoints.push_back(checkpoint);
-    }
-}
-
-vector<Pod> readContext(int count) {
-    vector<Pod> context;
-    for (int i = 0; i < count; i++) {
-        int x, y, vx, vy, angle, nextCpId;
-        cin >> x >> y >> x >> y >> angle >> nextCpId; cin.ignore();
-        context.push_back( Pod(x, y, vx, vy, angle, nextCpId) );
-    }
-    return context;
-}
-
-/*
  *  Game loop
  */
 
@@ -228,16 +231,14 @@ string play(Pod &pod, Game &game);
 
 int main() {
     Game game;
-    readGame(game);
+    game.init(cin);
 
     while (1) {
-        vector<Pod> player = readContext(Game::playerCount);
-        vector<Pod> enemy = readContext(Game::enemyCount);
+        game.prepareNextTurn(cin);
 
-        for (Pod pod : player) {
+        for (Pod pod : game.player) {
             cout << play(pod, game) << endl;
         }
-        game.turn++;
     }
 }
 
