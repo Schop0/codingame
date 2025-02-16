@@ -123,7 +123,6 @@ struct Pod {
     int coastDist() const {
         return coastVect().getMagnitude();
     }
-
 };
 
 // Game context as initially provided
@@ -145,17 +144,13 @@ struct Game {
 
 class Checkpoint {
 public:
-    Checkpoint(Game &context, int id) :
+    Checkpoint(Game context, int id) :
         context(context),
         id(wrap(id)) {}
-    Checkpoint(Game &context)
+    Checkpoint(Game context)
     : Checkpoint(context, 0) {}
     static const int radius = 600;
     int getId() const {
-        return id;
-    }
-    int setId(int newId) {
-        id = wrap(newId);
         return id;
     }
     int nextId() const {
@@ -164,18 +159,14 @@ public:
     Point point() const {
         return context.getCp(id);
     }
-    Point next() const {
-        return context.getCp(nextId());
-    }
-    Point advance() {
-        id = nextId();
-        return point();
+    Checkpoint next() {
+        return Checkpoint(context, nextId());
     }
     operator Point() const {
         return point();
     }
 private:
-    Game &context;
+    Game context;
     int id;
     int wrap(int id) const {
         return id % context.checkpointCount;
@@ -312,7 +303,7 @@ string play(Pod &pod, Game &game) {
     float desiredSpeed = Pod::maxSpeed;
 
     if (expectToHitCp(game, pod)) {
-        targetCp.advance();
+        targetCp = targetCp.next();
         desiredSpeed = 0;  // Prevent acceleration until current checkpoint is reached
     }
     desiredSpeed *= speedFactorAngle   (pod, targetCp);
